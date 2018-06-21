@@ -15,28 +15,7 @@
 
 	</head>
 	<body>
-
-		<div class="container-fluid">
-
-			<div class="page-header">
-				<div class="row">
-					<div class="col-sm-12">
-						<h1>Svenske artfakta <small><small><span class="label label-warning">v0.1</span></small></small></h1>
-					</div>
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="col-sm-12">
-
-
-
-						<div id="description"></div>
-
-
-				</div>
-			</div>
-		</div>
+		<div id="description"></div>
 
 	<script type="text/javascript">
 
@@ -83,6 +62,7 @@
 										"</div>";
 
 									 $('#description').html(descriptionHtml);
+									 parent.postMessage(document.body.scrollHeight, '*');
 								 	}
 
 
