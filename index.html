@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge;" />
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<title></title>
+
+		<script src="ext/jquery-2.1.3.min.js"></script>
+		<script src="ext/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+		<link rel="stylesheet" href="ext/bootstrap/3.3.2/css/bootstrap.min.css">
+		<link rel="stylesheet" href="ext/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="ext/bootstrap/3.3.2/css/custom_callout.css">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	</head>
+	<body>
+
+		<div class="container-fluid">
+
+			<div class="page-header">
+				<div class="row">
+					<div class="col-sm-12">
+						<h1>Svenske artfakta <small><small><span class="label label-warning">v0.1</span></small></small></h1>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-sm-12">
+
+
+
+						<div id="description"></div>
+
+
+				</div>
+			</div>
+		</div>
+
+	<script type="text/javascript">
+
+		var taxon = window.location.search.substring(1);
+
+		if(taxon) {
+	    $(function() {
+	        $.ajax({
+	            url: "https://api.artdatabanken.se/information/v1/speciesdataservice/v1/speciesdata/search?searchString=" + taxon,
+	            beforeSend: function(xhrObj){
+	                // Request headers
+	                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","c4c5804fdc0b458e837e70d6dedb42cf");
+	            },
+	            type: "GET",
+	        })
+	        .done(function(data) {
+						$(function() {
+				        $.ajax({
+									url: "https://api.artdatabanken.se/information/v1/speciesdataservice/v1/speciesdata/texts?taxa=" + data[0].taxonId,
+									 beforeSend: function(xhrObj){
+											 // Request headers
+											 xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key","c4c5804fdc0b458e837e70d6dedb42cf");
+									 },
+									 type: "GET",
+							 })
+							 .done(function(textdata) {
+								 if(textdata) {
+									 var d_obj = textdata[0];
+									 var s_obj = d_obj.speciesData;
+									 var descriptionHtml =
+									 	"<div style='border: 1px solid #394057; padding: 25px;'>" +
+										"<h6 style='border-bottom: 1px solid #394057; padding-bottom: 10px;'>Beskrivelse av <i>" + d_obj.scientificName.substr(0,1).toUpperCase() + d_obj.scientificName.substr(1).toLowerCase() + "</i> fra den svenske ArtDatabankens tjeneste <a href='//artfakta.artdatabanken.se/taxon/" + data[0].taxonId +"'>ArtFakta</a>. " +
+										"Vær oppmerksom på at <i>" + d_obj.scientificName.substr(0,1).toUpperCase() + d_obj.scientificName.substr(1).toLowerCase() + "</i> kan ha ulike definisjoner i Norge og Sverige.</h6>" +
+										"<a href='//artdatabanken.se'><img src='ArtDatabanken.png' style='float: right; height: 25px;'/></a>" +
+										"<H1><i>" + d_obj.scientificName.substr(0,1).toUpperCase() + d_obj.scientificName.substr(1).toLowerCase() + "</i></H1>" +
+
+
+										"<H2>" + d_obj.swedishName.substr(0,1).toUpperCase() + d_obj.swedishName.substr(1).toLowerCase() + "</H2>" +
+
+										(!!s_obj.characteristicAsHtml || !!s_obj.characteristic ? "<H3>Kännetecken</H3>" +
+											"<img src='//artfakta.artdatabanken.se/taxon/" + data[0].taxonId + "/karta' style='float: right; padding: 20px; height: 350px;'/>" +
+											"<p>" + (!!s_obj.characteristicAsHtml ? s_obj.characteristicAsHtml : s_obj.characteristic.replace(/\\n/g, "<br />")) + "</p>" : ""
+										) +
+
+										(!!s_obj.spreadAndStatusAsHtml || !!s_obj.spreadAndStatus ? "<H3>Svensk utbredning</H3>" +
+											"<p>" + (!!s_obj.spreadAndStatusAsHtml ? s_obj.spreadAndStatusAsHtml : s_obj.spreadAndStatus.replace(/\\n/g, "<br />")) + "</p>" : ""
+										) +
+
+										(!!s_obj.ecologyAsHtml || !!s_obj.ecology ? "<H3>Ekologi</H3>" +
+											"<p>" + (!!s_obj.ecologyAsHtml ? s_obj.ecologyAsHtml : s_obj.ecology.replace(/\\n/g, "<br />")) + "</p>" : ""
+										) +
+
+										(!!s_obj.threatAsHtml || !!s_obj.threat ? "<H3>Hot</H3>" +
+											"<p>" + (!!s_obj.threatAsHtml ? s_obj.threatAsHtml : s_obj.threat.replace(/\\n/g, "<br />")) + "</p>" : ""
+										) +
+
+										// (!!s_obj.conservationMeasuresAsHtml || !!s_obj.conservationMeasures ? "<H3>Åtgärder</H3>" +
+										// 	"<p>" + (!!s_obj.conservationMeasuresAsHtml ? s_obj.conservationMeasuresAsHtml : s_obj.conservationMeasures.replace(/\\n/g, "<br />")) + "</p>" : ""
+										// ) +
+
+										(!!s_obj.otherAsHtml || !!s_obj.other ? "<H3>Övrigt</H3>" +
+											"<p>" + (!!s_obj.otherAsHtml ? s_obj.otherAsHtml : s_obj.other.replace(/\\n/g, "<br />")) + "</p>" : ""
+										) +
+										"</div>";
+
+									 $('#description').html(descriptionHtml);
+								 	}
+
+
+							 })
+							 .fail(function() {
+								 console.log("error in getting taxon texts");
+							 });
+						 });
+					 })
+					 .fail(function() {
+						 console.log("error in taxon search");
+					 });
+				 })
+			 }
+	</script>
+
+
+	</body>
+</html>
